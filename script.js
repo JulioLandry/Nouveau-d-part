@@ -50,16 +50,16 @@ const $ = s=>document.querySelector(s);
 const $$ = s=>document.querySelectorAll(s);
 function toast(msg, ms=2500){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), ms); }
 
+/* ----------------------------------
+ * LANGUAGE REMOVAL: All i18n functions are removed
+ * ---------------------------------- */
+
 /* ===== State ===== */
 let currentSelection="BTC";       
 let transferTarget="USDT";        
 let payChoice="mvola";            
 let showExtraSelection=false;
 let withdrawalWallet="mvola";     
-
-/* ----------------------------------
- * LANGUAGE REMOVAL: All i18n functions are removed
- * ---------------------------------- */
 
 /* ===== Utility Functions ===== */
 function isCrypto(key) {
