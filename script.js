@@ -4,11 +4,6 @@ const CONFIG = {
   emailjsPublicKey : "DEMO_PUBLIC_KEY_REPLACE_ME",
   emailjsServiceId : "DEMO_SERVICE_ID",
   emailjsTemplateId: "DEMO_TEMPLATE_ID",
-  // ---- Contact links ----
-  emailTo   : "contact@takalocash.mg",
-  phoneCall : "+261347451051",
-  facebook  : "https://facebook.com/",
-  whatsapp  : "https://wa.me/261347451051",
   // ---- Our receiving addresses / IDs ----
   wallets: {
     // Mobile money numbers
@@ -212,14 +207,7 @@ function switchLanguage(lang) {
         $("#tab-transfert").textContent = t('tab_transfert');
         
         // 2. Update all hardcoded/placeholder labels and titles (using data-attributes)
-        $$('[data-i18n-label]').forEach(el => {
-            el.firstChild.textContent = t(el.dataset.i18nLabel);
-        });
-        $$('[data-i18n-title]').forEach(el => {
-            el.title = t(el.dataset.i18nTitle);
-        });
-        
-        // Update specific labels that require IDs
+        // Update general labels
         $("#dep-send-label").firstChild.textContent = t('dep_send_label');
         $("#dep-receive-label").textContent = t('dep_receive_label');
         $("#ret-send-label").firstChild.textContent = t('ret_send_label');
@@ -228,6 +216,19 @@ function switchLanguage(lang) {
         $("#trf-receive-label").textContent = t('trf_receive_label');
         $("#trf-choose-receive_label").firstChild.textContent = t('trf_choose_receive_label');
         
+        // Update placeholders
+        $("#dep-amount-ariary").placeholder = t('dep_placeholder_ariary');
+        $("#dep-addr").placeholder = t('dep_addr_placeholder');
+        $("#ret-amount-send").placeholder = t('ret_placeholder_send');
+        $("#ret-phone").placeholder = t('ret_phone_placeholder');
+        $("#ret-name").placeholder = t('ret_name_placeholder');
+        $("#trf-dest-addr").placeholder = t('trf_dest_addr_placeholder');
+
+        // Update titles (info icons)
+        $$('[data-i18n-title]').forEach(el => {
+            el.title = t(el.dataset.i18nTitle);
+        });
+
         // 3. Update language switcher appearance
         $$('.lang-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.lang === lang);
@@ -304,11 +305,7 @@ function renderUnifiedStrip(mode="depot"){
     });
     
     // Add expander button to the primary strip (Source or Transfer Target)
-    if (stripEl.id === 'unifiedStrip' && !isTargetStrip) {
-        const expander = chip(null, showExtraSelection, toggleSelection, true);
-        stripEl.appendChild(expander);
-    }
-    if (stripEl.id === 'unifiedStripTransfer' && isTargetStrip) {
+    if ((stripEl.id === 'unifiedStrip' && !isTargetStrip) || (stripEl.id === 'unifiedStripTransfer' && isTargetStrip)) {
         const expander = chip(null, showExtraSelection, toggleSelection, true);
         stripEl.appendChild(expander);
     }
@@ -407,34 +404,9 @@ function updateCurrentRateDisplay() {
   fiatDisplay.textContent = `1 $ = ${rateUSD.toLocaleString()} MGA | 1 € = ${rateEUR.toLocaleString()} MGA`;
 }
 
-// ... (existing updateRates, getActiveTab, and small event listeners like copy/pay-opts) ...
 function getActiveTab() {
   return $(".tab[aria-selected='true']").dataset.tab;
 }
-$$(".tab").forEach(t=>{
-  t.addEventListener("click",()=>{
-    $$(".tab").forEach(x=>x.setAttribute("aria-selected","false"));
-    t.setAttribute("aria-selected","true");
-    const tab=t.dataset.tab;
-    $("#panel-depot").hidden = tab!=="depot";
-    $("#panel-retrait").hidden = tab!=="retrait";
-    $("#panel-transfert").hidden = tab!=="transfert";
-    showExtraSelection=false;
-    refreshAll();
-  });
-});
-
-$("#dep-pay-opts").addEventListener("click",(e)=>{
-  const btn=e.target.closest(".paybtn"); if(!btn) return;
-  payChoice = btn.dataset.pay;
-  $$("#dep-pay-opts .paybtn").forEach(b=>b.setAttribute("aria-pressed", b.dataset.pay===payChoice?"true":"false"));
-  updateDepotDest();
-});
-
-["dep","ret","trf"].forEach(k=>{
-  $(`#${k}-copy`).addEventListener("click",()=>{ $(`#${k}-our-addr`).select(); document.execCommand("copy"); toast(t('ret_copy') + "ed!"); }); // Use translated 'Copy'
-});
-
 
 /* ---------------------------------
  * MAIN REFRESH FUNCTIONS (i18n integrated)
@@ -462,10 +434,9 @@ function refreshDepot(){
   let amountTarget = 0;
   let unitTarget = getUnit(target);
   
-  // Set placeholders and labels
-  $("#dep-amount-ariary").placeholder = t('dep_placeholder_ariary');
+  // Update static labels that require i18n
   $("#dep-choose-pay-label").textContent = t('dep_choose_pay');
-  $("#dep-addr").placeholder = t('dep_addr_placeholder');
+  $("#dep-addr-label").firstChild.textContent = t('dep_addr_label');
 
   let rateNote = t('common_rate_template').replace('{unit}', unitTarget).replace('...', t('rates_note_mga'));
   
@@ -480,8 +451,6 @@ function refreshDepot(){
   $("#dep-receive-unit").textContent = unitTarget;
   $("#dep-rate-note").textContent = rateNote;
   $("#dep-fee-note").textContent = `${t('dep_fee')}: ${feeRate*100}%`;
-  
-  $("#dep-addr-label").firstChild.textContent = `${t('dep_addr_label')}`;
   
   updateDepotDest();
 }
@@ -506,12 +475,11 @@ function refreshRetrait(){
   
   let unitSource = getUnit(source);
   
-  // Set placeholders and labels
+  // Update static labels that require i18n
   $("#ret-our-addr-label").firstChild.textContent = t('ret_our_addr_label');
   $("#ret-copy").textContent = t('ret_copy'); 
-  $("#ret-phone").placeholder = t('ret_phone_placeholder');
+  $("#ret-method-label").firstChild.textContent = t('ret_method_label');
   $("#ret-name-label").firstChild.textContent = t('ret_name_label');
-  $("#ret-name").placeholder = t('ret_name_placeholder');
   
   let rateNote = t('common_rate_template').replace('{unit}', unitSource).replace('...', t('rates_note_mga'));
   
@@ -526,6 +494,8 @@ function refreshRetrait(){
   const phoneNum = phoneInput.value.trim();
   const detectedWallet = detectMobileWallet(phoneNum);
   const walletIcon = $("#ret-wallet-icon");
+  $("#ret-our-addr").value = getAddress(source); // Our address for the source
+  
   if (phoneNum.length >= 3 && detectedWallet) {
     withdrawalWallet = detectedWallet;
     walletIcon.textContent = CONFIG.wallets[withdrawalWallet]?.logo || detectedWallet;
@@ -556,10 +526,10 @@ function refreshTransfer(){
   let unitSource = getUnit(source);
   let unitTarget = getUnit(target);
   
-  // Set placeholders and labels
+  // Update static labels that require i18n
   $("#trf-copy").textContent = t('ret_copy'); 
-  $("#trf-dest-addr").placeholder = t('trf_dest_addr_placeholder');
   $("#trf-our-addr-label").firstChild.textContent = t('ret_our_addr_label'); // Re-use
+  $("#trf-dest-addr-label").firstChild.textContent = t('trf_dest_addr_label');
 
   let displayRateNote = t('common_rate_conversion').replace('{unitSrc}', unitSource).replace('{unitTgt}', unitTarget).replace('...', t('rates_note_mga'));
   
@@ -585,8 +555,6 @@ function refreshTransfer(){
   $("#trf-amount-bot").value = amountTarget.toFixed(isCrypto(target) ? 8 : 2);
   $("#trf-bot-suffix").textContent = unitTarget;
   $("#trf-rate-note").textContent = displayRateNote;
-  
-  $("#trf-dest-addr-label").firstChild.textContent = t('trf_dest_addr_label');
 }
 
 // Main refresh orchestrator
@@ -604,7 +572,35 @@ function refreshAll(){
   if (activeTab === "transfert") refreshTransfer();
 }
 
-/* ===== Event Listeners for Dynamic Refresh & Language Switchers ===== */
+/* ===== Event Listeners ===== */
+// Tab Switching
+$$(".tab").forEach(t=>{
+  t.addEventListener("click",()=>{
+    $$(".tab").forEach(x=>x.setAttribute("aria-selected","false"));
+    t.setAttribute("aria-selected","true");
+    const tab=t.dataset.tab;
+    $("#panel-depot").hidden = tab!=="depot";
+    $("#panel-retrait").hidden = tab!=="retrait";
+    $("#panel-transfert").hidden = tab!=="transfert";
+    showExtraSelection=false;
+    refreshAll();
+  });
+});
+
+// Deposit Pay Options
+$("#dep-pay-opts").addEventListener("click",(e)=>{
+  const btn=e.target.closest(".paybtn"); if(!btn) return;
+  payChoice = btn.dataset.pay;
+  $$("#dep-pay-opts .paybtn").forEach(b=>b.setAttribute("aria-pressed", b.dataset.pay===payChoice?"true":"false"));
+  updateDepotDest();
+});
+
+// Copy Buttons
+["ret","trf"].forEach(k=>{
+  $(`#${k}-copy`).addEventListener("click",()=>{ $(`#${k}-our-addr`).select(); document.execCommand("copy"); toast(t('ret_copy') + "ed!"); }); 
+});
+
+// Input Listeners for Auto-Update
 $("#dep-amount-ariary").addEventListener("input", refreshDepot);
 $("#ret-amount-send").addEventListener("input", refreshRetrait);
 $("#ret-phone").addEventListener("input", refreshRetrait);
@@ -619,5 +615,4 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   // Initialize with the default language (and runs refreshAll)
   switchLanguage(currentLang); 
-  updateRates(); // Start fetching live rates
 });
