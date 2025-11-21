@@ -38,18 +38,21 @@ main{max-width:980px;margin:18px auto;padding:0 12px 80px}
 }
 .field input[readonly]{background:#f3f3f3;color:#333;cursor:not-allowed}
 .suffix{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;background:#111;color:#fff;border-radius:10px;padding:4px 8px}
-.prefix{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;color:#555;padding:4px 8px}
+/* Prefix removed as MGA moved to suffix */
 .grid{display:grid;grid-template-columns:1fr;gap:12px}
 @media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
 .note{font-size:12px;color:#333;margin-top:6px}
 .muted{color:var(--muted)}
 .row{display:flex;gap:10px;align-items:center}
-.pay-opts, .crypto-strip, .ewallet-strip{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 8px}
+.pay-opts, .unified-strip{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 8px}
+
+/* Unified strip is now a panel right below rates, above the transaction form */
+.unified-strip-panel { margin-top: 0; padding-top: 10px; } 
+
 .chip, .paybtn, .ewbtn{
   padding:6px 10px;border-radius:14px;background:#111;color:#fff;font-weight:700;font-size:12px;cursor:pointer;border:1px solid #000;user-select:none
 }
 .chip[aria-pressed="true"], .paybtn[aria-pressed="true"], .ewbtn[aria-pressed="true"]{background:var(--brand);color:#111;border-color:#d6a800}
-/* REMOVED .expand-btn */
 .checkbox{display:flex;gap:8px;align-items:flex-start;margin-top:6px}
 .actions{display:flex;gap:10px;align-items:center;margin-top:10px}
 .btn{border:none;border-radius:16px;padding:12px 16px;font-weight:900;cursor:pointer}
@@ -74,7 +77,7 @@ main{max-width:980px;margin:18px auto;padding:0 12px 80px}
 .crypto-item.active { background: #ffbf0022; }
 .crypto-rate { font-size: 12px; color: #666; }
 
-/* Inline Expander Button (New) */
+/* Inline Expander Button */
 .expand-inline-btn {
     display: inline-flex;
     align-items: center;
@@ -109,11 +112,7 @@ main{max-width:980px;margin:18px auto;padding:0 12px 80px}
   align-items: center;
   margin-left: 4px;
 }
-
-.info-icon svg {
-  width: 16px;
-  height: 16px;
-}
+.info-icon svg { width: 16px; height: 16px; }
 
 /* Wallet Selector for Withdrawal */
 .select-wallet-btn {
