@@ -76,7 +76,7 @@ header {
   font-weight: 600;
 }
 
-/* --- NEW: Language Switcher Styling --- */
+/* --- Language Switcher Styling --- */
 .lang-bar {
     display: flex;
     gap: 4px;
@@ -240,12 +240,6 @@ main {
 
 .crypto-selector-btn:hover {
     background: var(--bg-hover);
-}
-
-.crypto-selector-btn .arrow {
-    width: 10px;
-    height: 10px;
-    transition: transform 0.2s;
 }
 
 .crypto-selector-btn.open .arrow {
