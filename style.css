@@ -76,9 +76,9 @@ header {
   font-weight: 600;
 }
 
-/* --- Language Switcher Styling (Kept but unused) --- */
+/* --- Language Switcher Styling (REMOVED) --- */
 .lang-bar {
-    display: none; 
+    display: none !important; 
 }
 
 
@@ -457,4 +457,4 @@ footer {
         margin-left: 0;
         margin-top: 10px;
     }
-}
+      }
